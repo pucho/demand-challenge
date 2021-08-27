@@ -10,7 +10,11 @@ const apiClient = axios.create({
 });
 
 export default {
-  getMerchants() {
-    return apiClient.get("/merchants?limit=10");
+  getMerchants(page, search) {
+    return apiClient.get(
+      `/merchants?limit=10&offset=${page > 1 ? (page - 1) * 10 : 0}${
+        search ? `&query=${search}` : ""
+      }`
+    );
   },
 };

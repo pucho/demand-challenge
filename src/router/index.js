@@ -6,6 +6,7 @@ const routes = [
     path: "/",
     name: "MerchantList",
     component: MerchantList,
+    props: (route) => ({ page: parseInt(route.query.page) || 1 }),
   },
 ];
 

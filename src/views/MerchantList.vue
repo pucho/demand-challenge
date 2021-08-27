@@ -1,10 +1,45 @@
 <template>
   <h1>Merchants</h1>
-  <MerchantCard
-    v-for="merchant in merchants"
-    :key="merchant.id"
-    :merchant="merchant"
-  />
+  <div class="merchants">
+    <div>
+      <input
+        class="search"
+        type="text"
+        placeholder="Search..."
+        v-model="search"
+      />
+    </div>
+    <div>{{ $store.state.favorites }}</div>
+    <div class="pagination">
+      <router-link
+        :to="{ name: 'MerchantList', query: { page: page - 1 } }"
+        rel="prev"
+        id="page-prev"
+        tag="button"
+        :disabled="true"
+        class="button"
+      >
+        Previous
+      </router-link>
+      <div>{{ page }}/{{ Math.ceil(totalMerchants / 10) }}</div>
+      <router-link
+        :to="{ name: 'MerchantList', query: { page: page + 1 } }"
+        rel="next"
+        v-if="hasNextPage"
+        id="page-next"
+        tag="button"
+        :disabled="true"
+        class="button"
+      >
+        Next
+      </router-link>
+    </div>
+    <MerchantCard
+      v-for="merchant in merchants"
+      :key="merchant.id"
+      :merchant="merchant"
+    />
+  </div>
 </template>
 
 <script>
@@ -14,6 +49,7 @@ import MerchantService from "@/services/MerchantService.js";
 
 export default {
   name: "MerchantList",
+  props: ["page"],
   components: {
     MerchantCard,
   },
@@ -21,16 +57,21 @@ export default {
     return {
       merchants: null,
       totalMerchants: 0,
+      loadingPage: false,
+      search: "",
     };
   },
   created() {
     watchEffect(() => {
+      // TODO check for null merchants
       this.merchant = null;
-      MerchantService.getMerchants()
+      this.loadingPage = true;
+      MerchantService.getMerchants(this.page, this.search)
         .then((res) => {
           const { merchants, total } = res.data;
           this.merchants = merchants;
           this.totalMerchants = total;
+          this.loadingPage = false;
           console.log(res);
         })
         .catch((error) => {
@@ -38,8 +79,57 @@ export default {
         });
     });
   },
+  computed: {
+    hasNextPage() {
+      let totalPages = Math.ceil(this.totalMerchants / 2);
+      return this.page < totalPages;
+    },
+  },
+  watch: {
+    search: function () {
+      //TODO debounce search
+      this.$router.push({
+        name: "MerchantList",
+      });
+    },
+  },
 };
 </script>
 
-<style>
+<style scoped>
+.merchants {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search {
+  border-radius: 24px;
+  min-width: 365px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 4px 12px rgb(0 0 0 / 5%);
+  outline: none;
+  cursor: pointer;
+  height: 48px;
+  border: 0 solid gray;
+  padding: 0 15px;
+  margin-bottom: 15px;
+  font-family: inherit;
+  font-weight: bold;
+}
+.pagination {
+  display: flex;
+  width: 385px;
+  margin-bottom: 15px;
+  align-items: center;
+  justify-content: space-between;
+}
+.pagination a {
+  flex: 1;
+  text-decoration: none;
+  width: 395px;
+  display: flex;
+  justify-content: center;
+}
 </style>
