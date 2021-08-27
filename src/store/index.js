@@ -17,12 +17,6 @@ export default createStore({
       state.favorites = favs;
     },
   },
-  actions: {
-    // setFavorites(context) {
-    //   const currentFavorites = [...state.favorites];
-    //   context.commit();
-    // },
-    // isFavorite(context) {},
-  },
+  actions: {},
   modules: {},
 });

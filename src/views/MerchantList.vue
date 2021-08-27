@@ -9,14 +9,12 @@
         v-model="search"
       />
     </div>
-    <div>{{ $store.state.favorites }}</div>
-    <div class="pagination">
+    <div class="pagination" v-if="merchants.length > 0">
       <router-link
         :to="{ name: 'MerchantList', query: { page: page - 1 } }"
         rel="prev"
         id="page-prev"
         tag="button"
-        :disabled="true"
         class="button"
       >
         Previous
@@ -25,15 +23,15 @@
       <router-link
         :to="{ name: 'MerchantList', query: { page: page + 1 } }"
         rel="next"
-        v-if="hasNextPage"
         id="page-next"
         tag="button"
-        :disabled="true"
         class="button"
       >
         Next
       </router-link>
     </div>
+    <div v-else>No results for your search</div>
+
     <MerchantCard
       v-for="merchant in merchants"
       :key="merchant.id"
@@ -72,7 +70,6 @@ export default {
           this.merchants = merchants;
           this.totalMerchants = total;
           this.loadingPage = false;
-          console.log(res);
         })
         .catch((error) => {
           console.log(error);
